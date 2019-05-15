@@ -50,7 +50,7 @@
     <Compile Include="InputAggregateRepo.cs" />
     <Compile Include="EventFromDomain\OfInput\NotRegisteredEvent.cs" />
     <Compile Include="IProcessElement.cs" />
-    <Compile Include="ProcessElement.cs" />
+    <Compile Include="FirstSubProcess.cs" />
     <Compile Include="ProcessElementState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

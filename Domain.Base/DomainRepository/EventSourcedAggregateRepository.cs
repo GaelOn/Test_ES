@@ -44,6 +44,7 @@ namespace Domain.Base.DomainRepository
                 {
                     aggregateEventSourcedView.ProcessEvent(evt.DomainEvent, evt.EventNumber);
                 }
+                aggregateEventSourcedView.ClearUncommittedEvents();
                 return aggregate;
             }
             catch (AggregateNotFoundEventStoreException)

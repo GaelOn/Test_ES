@@ -11,7 +11,7 @@ namespace Domain.Mock.Implem
 {
     public class InputAggregate : AggregateBase<int, int>
     {
-        public List<ProcessElement> ProcessElements { get; }
+        public List<FirstSubProcess> ProcessElements { get; }
 
         public InputAggregate() : base(new InputEventProcessor())
         {
@@ -40,7 +40,7 @@ namespace Domain.Mock.Implem
                 => RouteEventToProcessElement(evt, evt.ProcessElemId);
 
             private void RouteEventToProcessElement(DomainEventBase<int> evt, int id) 
-                => (InAggregate.FindEntityById(id) as ProcessElement).RaiseEvent(evt);
+                => (InAggregate.FindEntityById(id) as FirstSubProcess).RaiseEvent(evt);
 
             private void RouteProcessElemStartedToProcessElement(IDomainEventHandler<int> handler, IDomainEvent<int> evt)
                 => RouteProcessElemToProcessElement<ProcessElemStarted>(handler, evt);
@@ -52,13 +52,13 @@ namespace Domain.Mock.Implem
                 where T : DomainEventBase<int>, IProcessElemEvent
             {
                 var castedEvt = evt as T;
-                (InAggregate.FindEntityById((castedEvt).ProcessElemId) as ProcessElement).RaiseEvent(castedEvt);
+                (InAggregate.FindEntityById((castedEvt).ProcessElemId) as FirstSubProcess).RaiseEvent(castedEvt);
             }
 
             private void RouteToAggregate(IDomainEventHandler<int> handler, IDomainEvent<int> evt)
                 => InAggregate.processEvent(handler, evt, evt.EventVersion + 1);
         }
 
-        public ProcessElement GetProcessElementById(int processId) => FindEntityById(processId) as ProcessElement;
+        public FirstSubProcess GetProcessElementById(int processId) => FindEntityById(processId) as FirstSubProcess;
     }
 }

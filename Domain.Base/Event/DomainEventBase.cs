@@ -7,8 +7,12 @@ namespace Domain.Base
 {
     public abstract class DomainEventBase<TStreamId> : IDomainEvent<TStreamId>, IEquatable<DomainEventBase<TStreamId>>
     {
+        #region Private Field
+        private Guid _id = Guid.NewGuid();
+        #endregion
+
         #region IDomainEvent<TStreamId>
-        public Guid EventId => Guid.NewGuid();
+        public Guid EventId => _id;
         public TStreamId StreamId { get; }
         public long EventVersion { get; protected set; }
 

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Linq;
-using Domain.Mock.Implem;
-using Domain.Base.DomainRepository;
-using Domain.Mock.Implem.EventFromDomain.OfInput;
-using Domain.Mock.Implem.EventFromDomain.EntityOfInput;
-using NUnit.Framework;
-using FluentAssertions;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Base.DomainRepository;
+using Domain.Base.Aggregate.AggregateException;
+using Domain.Mock.Implem;
+using Domain.Mock.Implem.EventFromDomain.OfInput;
+using Domain.Mock.Implem.EventFromDomain.EntityOfInput;
+using static Domain.Base.Test.Scenario;
+using NUnit.Framework;
+using FluentAssertions;
 
 namespace Domain.Base.AggregateBase.Test
 {
@@ -22,16 +24,33 @@ namespace Domain.Base.AggregateBase.Test
         public void Should_Create_An_Empty_Agregate()
         {
             /// Arrange
-            var expectedStreamId           = 1;
+            var expectedStreamId = 1;
             var expectedNextCurrentVersion = 1;
-            var expectedVersion            = 0;
-            var aggregate                  = _repo.GetNewAggregate();
+            var expectedVersion = 0;
+            var aggregate = _repo.GetNewAggregate();
             // Act
             aggregate.RaiseEvent(new InputAggregateCreated(expectedStreamId));
             /// Assert
             aggregate.AggregateId.Should().Be(expectedStreamId);
             ((IEventSourced<int>)aggregate).Version.Should().Be(expectedVersion);
             ((IEventSourced<int>)aggregate).CurrentVersion.Should().Be(expectedNextCurrentVersion);
+        }
+
+
+        [Test]
+        public void Aggregate_Should_Throw_Exception_On_Bad_StreamId()
+        {
+            // Arrange
+            var aggregate = _repo.GetNewAggregate();
+            var paramScenarioTest = GetArg();
+            var processElemCreation = new FirstSubProcess(paramScenarioTest.ProcessName,
+                                                         paramScenarioTest.ExpectedProcessId,
+                                                         paramScenarioTest.ExpectedDateCreated);
+            aggregate.RaiseEvent(new InputAggregateCreated(paramScenarioTest.ExpectedStreamId));
+            // Act
+            var save = new Action(() => aggregate.RaiseEvent(new ProcessElementEntityCreated(paramScenarioTest.ExpectedStreamId + 1, processElemCreation)));
+            // Assert
+            save.Should().Throw<AggregateIdNotMatchException>();
         }
 
         [Test]
@@ -59,7 +78,7 @@ namespace Domain.Base.AggregateBase.Test
             var expectedDateCreated     = DateTime.Now;
             var expectedDateStarted     = expectedDateCreated.AddMinutes(5);
             var expectedRunningService  = "TestService";
-            var processElemCreation     = new ProcessElement("Test", expectedProcessId, expectedDateCreated);
+            var processElemCreation     = new FirstSubProcess("Test", expectedProcessId, expectedDateCreated);
             // Act
             aggregate.RaiseEvent(new InputAggregateCreated(expectedStreamId));
             aggregate.RaiseEvent(new ProcessElementEntityCreated(expectedStreamId, processElemCreation));
@@ -82,8 +101,8 @@ namespace Domain.Base.AggregateBase.Test
             var expectedDateCreated = DateTime.Now;
             var expectedDateStarted = expectedDateCreated.AddMinutes(5);
             var expectedRunningService = "TestService";
-            var processElemCreation1 = new ProcessElement("Test1", expectedProcessId1, expectedDateCreated);
-            var processElemCreation2 = new ProcessElement("Test2", expectedProcessId2, expectedDateCreated);
+            var processElemCreation1 = new FirstSubProcess("Test1", expectedProcessId1, expectedDateCreated);
+            var processElemCreation2 = new FirstSubProcess("Test2", expectedProcessId2, expectedDateCreated);
             var mre1 = new ManualResetEvent(true);
             var mre2 = new ManualResetEvent(false);
             var mre3 = new ManualResetEvent(false);

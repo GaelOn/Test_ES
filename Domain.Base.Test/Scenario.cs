@@ -10,7 +10,7 @@ namespace Domain.Base.Test
         public static InputAggregate Start_Process(ParamScenarioTest paramScenarioTest, Func<InputAggregate> aggregateFactory)
         {
             var aggregate = aggregateFactory();
-            var processElemCreation = new ProcessElement(paramScenarioTest.ProcessName,
+            var processElemCreation = new FirstSubProcess(paramScenarioTest.ProcessName,
                                                          paramScenarioTest.ExpectedProcessId,
                                                          paramScenarioTest.ExpectedDateCreated);
             aggregate.RaiseEvent(new InputAggregateCreated(paramScenarioTest.ExpectedStreamId));
@@ -25,7 +25,7 @@ namespace Domain.Base.Test
         public static InputAggregate Should_Throw_Due_To_Bad_StreamId(ParamScenarioTest paramScenarioTest, Func<InputAggregate> aggregateFactory)
         {
             var aggregate = aggregateFactory();
-            var processElemCreation = new ProcessElement(paramScenarioTest.ProcessName,
+            var processElemCreation = new FirstSubProcess(paramScenarioTest.ProcessName,
                                                          paramScenarioTest.ExpectedProcessId,
                                                          paramScenarioTest.ExpectedDateCreated);
             aggregate.RaiseEvent(new InputAggregateCreated(paramScenarioTest.ExpectedStreamId + 1));

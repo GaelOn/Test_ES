@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using Domain.Base.Aggregate;
 using Domain.Base.Event.EventStore;
-using Domain.Base.DomainRepository;
 using Domain.Base.Event.IEventCommunication;
+using Domain.Base.DomainRepository;
 using Domain.Base.Mock;
 using Domain.Base.Mock.EventBus;
 using Domain.Base.Mock.CommunicationQueue;
 using Domain.Mock.Implem;
 using Domain.Mock.Implem.EventFromDomain.OfInput;
 using Domain.Mock.Implem.EventFromDomain.EntityOfInput;
+using Domain.Base.Test;
+using static Domain.Base.Test.Scenario;
 using NUnit.Framework;
 using FluentAssertions;
-using System.Threading;
-using Domain.Base.Aggregate;
 
 namespace Domain.Base.EventSourcedAggregateRepository.Test
 {
@@ -46,7 +48,7 @@ namespace Domain.Base.EventSourcedAggregateRepository.Test
         public void Repo_Should_Save_Event_On_Store()
         {
             // Arrange
-            var aggregate = Scenario_Start_Process();
+            var aggregate = Start_Process(GetArg(), () => _repo.GetNewAggregate());
             // Act
             _repo.Save(aggregate);
             // Assert
@@ -58,7 +60,7 @@ namespace Domain.Base.EventSourcedAggregateRepository.Test
         public void Repo_Should_Publish_Event_On_Store()
         {
             // Arrange
-            var (aggregate, _) = Scenario_Start_Process();
+            var aggregate = Start_Process(GetArg(), () => _repo.GetNewAggregate());
             var msgProcessor   = new MessageProcessor(_eventListenerRegister);
             msgProcessor.RegisterMessageToBeCounted<InputAggregateCreated>();
             msgProcessor.RegisterMessageToBeCounted<ProcessElementEntityCreated>();
@@ -70,61 +72,16 @@ namespace Domain.Base.EventSourcedAggregateRepository.Test
             msgProcessor.Count.Should().Be(3);
         }
 
-        private (InputAggregate, ParamScenarioTest) Scenario_Start_Process()
-        {
-            var paramScenarioTest      = GetArg();
-            var aggregate              = _repo.GetNewAggregate();
-            var processElemCreation    = new ProcessElement(paramScenarioTest.ProcessName, 
-                                                            paramScenarioTest.ExpectedProcessId, 
-                                                            paramScenarioTest.ExpectedDateCreated);
-            aggregate.RaiseEvent(new InputAggregateCreated(paramScenarioTest.ExpectedProcessId));
-            aggregate.RaiseEvent(new ProcessElementEntityCreated(paramScenarioTest.ExpectedStreamId, 
-                                                                 processElemCreation));
-            aggregate.RaiseEvent(new ProcessElemStarted(paramScenarioTest.ExpectedStreamId, 
-                                                        paramScenarioTest.ExpectedProcessId, 
-                                                        paramScenarioTest.ExpectedRunningService, 
-                                                        paramScenarioTest.ExpectedDateStarted));
-            return (aggregate, paramScenarioTest);
-        }
-
-        private class ParamScenarioTest
-        {
-            public int ExpectedStreamId { get; }
-            public int ExpectedProcessId { get; }
-            public DateTime ExpectedDateCreated { get; }
-            public DateTime ExpectedDateStarted { get; }
-            public DateTime ExpectedDateStoped { get; }
-            public string ProcessName { get; }
-            public string ExpectedRunningService { get; }
-            public ParamScenarioTest(string processName, int expectedStreamId, int expectedProcessId, 
-                                     string expectedRunningService, DateTime expectedDateCreated, 
-                                     DateTime expectedDateStarted, DateTime expectedDateStoped)
-            {
-                ProcessName            = processName;
-                ExpectedStreamId       = expectedStreamId;
-                ExpectedProcessId      = expectedProcessId;
-                ExpectedRunningService = expectedRunningService;
-                ExpectedDateCreated    = expectedDateCreated;
-                ExpectedDateStarted    = expectedDateStarted;
-                ExpectedDateStoped     = expectedDateStoped;
-            }
-        }
-
-        private ParamScenarioTest GetArg()
-        {
-            return new ParamScenarioTest("Test", 1, 10, "TestService", DateTime.Now, DateTime.Now.AddMinutes(1), DateTime.Now.AddMinutes(5));
-        }
-
 
         [Test]
         public void Repo_Should_Restitute_Aggregate_At_the_Last_Save_State()
         {
             // Arrange
             var mre = new ManualResetEvent(false);
-            ParamScenarioTest _param = null;
-            void Simulate_Something_ElseWhere(out ParamScenarioTest param)
+            ParamScenarioTest _param = GetArg();
+            void Simulate_Something_ElseWhere()
             {
-                var (aggregate, param) = Scenario_Start_Process();
+                var aggregate = Start_Process(_param, () => _repo.GetNewAggregate());
                 _repo.Save(aggregate);
                 mre.Set();
             }
@@ -134,7 +91,7 @@ namespace Domain.Base.EventSourcedAggregateRepository.Test
             var restoreAggregate = _repo.GetById(1);
             // Assert
             bool CriteriaOnRunningservice(IEntity<int, int> ent)
-                => ent is ProcessElement && ((ProcessElement)ent).RunningService == "TestService";
+                => ent is FirstSubProcess && ((FirstSubProcess)ent).RunningService == _param.ExpectedRunningService;
             ((IEventSourced<int>)restoreAggregate).UncommittedEvents.Count().Should().Be(0);
             var entity = restoreAggregate.FindEntityByCriteria(CriteriaOnRunningservice);
         }
