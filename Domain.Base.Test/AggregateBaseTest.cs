@@ -94,51 +94,49 @@ namespace Domain.Base.AggregateBase.Test
         public void Should_Be_Handle_By_Two_Thread()
         {
             /// Arrange
-            var expectedStreamId = 1;
-            var expectedProcessId1 = 10;
-            var expectedProcessId2 = 11;
+            var param1 = GetArg(1);
+            var param2 = GetArg(2);
             var aggregate = _repo.GetNewAggregate();
-            var expectedDateCreated = DateTime.Now;
-            var expectedDateStarted = expectedDateCreated.AddMinutes(5);
-            var expectedRunningService = "TestService";
-            var processElemCreation1 = new FirstSubProcess("Test1", expectedProcessId1, expectedDateCreated);
-            var processElemCreation2 = new FirstSubProcess("Test2", expectedProcessId2, expectedDateCreated);
+            //var expectedDateCreated = DateTime.Now;
+            //var expectedDateStarted = expectedDateCreated.AddMinutes(5);
+            var processElemCreation1 = new FirstSubProcess(param1.ProcessName, param1.ExpectedProcessId, param1.ExpectedDateCreated);
+            var processElemCreation2 = new FirstSubProcess(param2.ProcessName, param2.ExpectedProcessId, param2.ExpectedDateCreated);
             var mre1 = new ManualResetEvent(true);
             var mre2 = new ManualResetEvent(false);
             var mre3 = new ManualResetEvent(false);
             void Thread1Work()
             {
                 mre1.WaitOne();
-                aggregate.RaiseEvent(new ProcessElementEntityCreated(expectedStreamId, processElemCreation1));
-                aggregate.RaiseEvent(new ProcessElemStarted(expectedStreamId, expectedProcessId1, expectedRunningService, expectedDateStarted));
+                aggregate.RaiseEvent(new ProcessElementEntityCreated(param1.ExpectedStreamId, processElemCreation1));
+                aggregate.RaiseEvent(new ProcessElemStarted(param1.ExpectedStreamId, param1.ExpectedProcessId, 
+                                                            param1.ExpectedRunningService, param1.ExpectedDateStarted));
                 mre2.Set();
                 mre1.Reset();
                 mre1.WaitOne();
-                aggregate.RaiseEvent(new ProcessElemStoped(expectedStreamId, expectedProcessId1, expectedDateStarted));
+                aggregate.RaiseEvent(new ProcessElemStoped(param1.ExpectedStreamId, param1.ExpectedProcessId, param1.ExpectedDateStoped));
                 mre2.Set();
             }
             void Thread2Work()
             {
                 mre2.WaitOne();
-                aggregate.RaiseEvent(new ProcessElementEntityCreated(expectedStreamId, processElemCreation2));
-                aggregate.RaiseEvent(new ProcessElemStarted(expectedStreamId, expectedProcessId2, expectedRunningService, expectedDateStarted));
+                aggregate.RaiseEvent(new ProcessElementEntityCreated(param2.ExpectedStreamId, processElemCreation2));
+                aggregate.RaiseEvent(new ProcessElemStarted(param2.ExpectedStreamId, param2.ExpectedProcessId,
+                                                            param2.ExpectedRunningService, param2.ExpectedDateStarted));
                 mre1.Set();
                 mre2.Reset();
                 mre2.WaitOne();
-                aggregate.RaiseEvent(new ProcessElemStoped(expectedStreamId, expectedProcessId2, expectedDateStarted));
+                aggregate.RaiseEvent(new ProcessElemStoped(param2.ExpectedStreamId, param2.ExpectedProcessId, param2.ExpectedDateStoped));
             }
             // Act
-            aggregate.RaiseEvent(new InputAggregateCreated(expectedStreamId));
+            aggregate.RaiseEvent(new InputAggregateCreated(param1.ExpectedStreamId));
             var t1 = Task.Factory.StartNew(Thread1Work);
             var t2 = Task.Factory.StartNew(Thread2Work);
             var tasks = new[] { t1, t2 };
             Task.WhenAll(tasks).ContinueWith((t) => mre3.Set());
             mre3.WaitOne();
             /// Assert
-            var processElemRetrieve = aggregate.GetProcessElementById(expectedProcessId1);
-            processElemRetrieve.Should().NotBeNull();
-            processElemRetrieve.RunningService.Should().Be(expectedRunningService);
-            processElemRetrieve.Start.Should().Be(expectedDateStarted);
+            aggregate.GetProcessElementById(param1.ExpectedProcessId).ShouldBeAsExpected(param1);
+            aggregate.GetProcessElementById(param2.ExpectedProcessId).ShouldBeAsExpected(param2);
         }
     }
 }
