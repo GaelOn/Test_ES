@@ -55,11 +55,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateBaseTest.cs" />
+    <Compile Include="BaseEventSourcedAggregateRepositoryTest.cs" />
     <Compile Include="DomainEventTest.cs" />
     <Compile Include="EventSourcedAggregateRepositoryTest.cs" />
     <Compile Include="EventWrapperTest.cs" />
     <Compile Include="IProcessElementExtension.cs" />
+    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="MultiThreadedEventSourcedAggregateRepositoryTest.cs" />
     <Compile Include="ParamScenarioTest.cs" />
+    <Compile Include="PingPong.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scenario.cs" />
   </ItemGroup>

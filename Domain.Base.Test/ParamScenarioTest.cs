@@ -1,5 +1,4 @@
 ﻿using Domain.Mock.Implem;
-using Domain.Mock.Implem.EventFromDomain.EntityOfInput;
 using System;
 
 namespace Domain.Base.Test

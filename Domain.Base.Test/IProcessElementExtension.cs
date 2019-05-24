@@ -6,13 +6,13 @@ namespace Domain.Base.AggregateBase.Test
 {
     public static class IProcessElementExtension
     {
-        public static void ShouldBeAsExpected(this IProcessElement pe, ParamScenarioTest param)
+        public static void ShouldBeAsExpected(this IProcessElement processElement, ParamScenarioTest param)
         {
-            pe.Should().NotBeNull();
-            pe.RunningService.Should().Be(param.ExpectedRunningService);
-            pe.Start.Should().Be(param.ExpectedDateStarted);
-            pe.Stop.Should().Be(param.ExpectedDateStoped);
-            pe.State.Should().Be(param.ExpectedState);
+            processElement.Should().NotBeNull();
+            processElement.RunningService.Should().Be(param.ExpectedRunningService);
+            processElement.Start.Should().Be(param.ExpectedDateStarted);
+            processElement.Stop.Should().Be(param.ExpectedDateStoped);
+            processElement.State.Should().Be(param.ExpectedState);
         }
 
     }

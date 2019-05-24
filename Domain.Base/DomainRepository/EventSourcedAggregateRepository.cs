@@ -42,6 +42,7 @@ namespace Domain.Base.DomainRepository
 
                 foreach (var evt in _eventStore.ReadEvents(id))
                 {
+                    //aggregate.RaiseEvent(evt.DomainEvent);
                     aggregateEventSourcedView.ProcessEvent(evt.DomainEvent, evt.EventNumber);
                 }
                 aggregateEventSourcedView.ClearUncommittedEvents();
@@ -91,12 +92,10 @@ namespace Domain.Base.DomainRepository
                 long count = 0;
                 foreach (var evt in aggregateEventSourcedView.UncommittedEvents)
                 {
-                    if (versionFromStore.ExpectedVersion == (aggregateEventSourcedView.Version + count))
-                    {
-                        versionFromStore = _eventStore.AddEvent(evt);
-                        PublishEvent(evt);
-                        count++;
-                    }
+                    VersionGuard(versionFromStore, evt);
+                    versionFromStore = _eventStore.AddEvent(evt);
+                    PublishEvent(evt);
+                    count++;
                 }
                 aggregateEventSourcedView.ClearUncommittedEvents();
             }
@@ -105,6 +104,7 @@ namespace Domain.Base.DomainRepository
                 throw new RepositoryException(CommunicationImpossibleWithPersistenceBackend, ex);
             }
         }
+
 
         public async Task SaveAsync(TAggregate aggregate)
         {
@@ -149,7 +149,19 @@ namespace Domain.Base.DomainRepository
             var expCall            = Expression.Call(expParamPublisher, method.MakeGenericMethod(new[] { type, typeof(TAggregateId) } ), Expression.Convert(expParam, type));
             var lambdaExp          = ((Expression<Action<IEventBus, object>>)Expression.Lambda(expCall, expParamPublisher, expParam));
             return lambdaExp.Compile();
-        } 
+        }
+
+        #region Guard methods
+        private void VersionGuard(NextExpectedVersionByStore expectedVersion, IDomainEvent<TAggregateId> evt)
+        {
+            if (expectedVersion.ExpectedVersion != evt.EventVersion)
+            {
+                throw new StoredVersionDontMatchException($"Event of type {evt.GetType()} should have a version number equal to {expectedVersion} but found {evt.EventVersion}.");
+            }
+
+        }
+        #endregion
+
         #endregion
     }
 }

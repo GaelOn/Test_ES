@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Domain.Base.Event.EvantHandler
+﻿namespace Domain.Base.Event.EvantHandler
 {
     public interface IDomainEventHandler<TId>
     { 

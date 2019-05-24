@@ -22,6 +22,10 @@ namespace Domain.Base.Mock
             {
                 _evts.AddLast(new EventWrapper<TStreamId>(evt));
             }
+            else
+            {
+                throw new StoredVersionDontMatchException($"Event of type {evt.GetType()} should have a version number of {_evts.Last.Value.Version + 1} but found {evt.EventVersion}.");
+            }
             return new NextExpectedVersionByStore(_localStore[evt.StreamId].Count);
         }
 

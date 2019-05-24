@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Domain.Base;
 using Domain.Base.Event;
 using Domain.Base.Aggregate;

@@ -63,6 +63,7 @@
     <Compile Include="Event\EventStore\Exception\EventStoreException.cs" />
     <Compile Include="Event\EventStore\EventWrapper.cs" />
     <Compile Include="Event\EventStore\Exception\EventStoreNotReachableException.cs" />
+    <Compile Include="Event\EventStore\Exception\StoredVersionDontMatchException.cs" />
     <Compile Include="Event\EventStore\IEventStore.cs" />
     <Compile Include="Event\EventStore\IEventWrapper.cs" />
     <Compile Include="Event\EventStore\NextExpectedVersionByStore.cs" />

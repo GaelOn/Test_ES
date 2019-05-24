@@ -1,17 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using Domain.Base.Aggregate;
-using Domain.Base.Event.EventStore;
-using Domain.Base.Event.IEventCommunication;
-using Domain.Base.DomainRepository;
-using Domain.Base.Mock;
-using Domain.Base.Mock.EventBus;
-using Domain.Base.Mock.CommunicationQueue;
 using Domain.Mock.Implem;
 using Domain.Mock.Implem.EventFromDomain.OfInput;
 using Domain.Mock.Implem.EventFromDomain.EntityOfInput;
 using Domain.Base.Test;
+using Domain.Base.AggregateBase.Test;
 using static Domain.Base.Test.Scenario;
 using NUnit.Framework;
 using FluentAssertions;
@@ -19,21 +13,8 @@ using FluentAssertions;
 namespace Domain.Base.EventSourcedAggregateRepository.Test
 {
     [TestFixture]
-    public class EventSourcedAggregateRepositoryTest
+    public partial class EventSourcedAggregateRepositoryTest : BaseEventSourcedAggregateRepositoryTest
     {
-        private readonly IEventBus                              _bus;
-        private readonly IEventStore<int>                       _store;
-        private readonly IHandlerRegister                       _eventListenerRegister;
-        private readonly IDomainRepository<InputAggregate, int> _repo;
-        
-        public EventSourcedAggregateRepositoryTest()
-        {
-            var q                  = new MockQ();
-            _bus                   = new MockEventBus(q);
-            _store                 = new EventStoreMock<int>();
-            _repo                  = new InputAggregateRepo(_store, _bus);
-            _eventListenerRegister = q.GetHandlerRegister("Mock");
-        }
 
         [Test]
         public void Repo_Can_Create_An_Empty_Agregate()
@@ -57,21 +38,39 @@ namespace Domain.Base.EventSourcedAggregateRepository.Test
         }
 
         [Test]
+        public void Repo_Allow_To_Add_Event_On_Reloaded_Aggregate()
+        {
+            // Arrange
+            var param = GetArg(1);
+            var aggregate = _repo.GetNewAggregate();
+            var processElemCreation = new FirstSubProcess(param.ProcessName, param.ExpectedProcessId, param.ExpectedDateCreated);
+            // Act
+            aggregate.RaiseEvent(new InputAggregateCreated(param.ExpectedStreamId));
+            _repo.Save(aggregate);
+            var aggregate2 = _repo.GetById(param.ExpectedStreamId);
+            aggregate2.RaiseEvent(new ProcessElementEntityCreated(param.ExpectedStreamId, processElemCreation));
+            aggregate2.RaiseEvent(new ProcessElemStarted(param.ExpectedStreamId, param.ExpectedProcessId,
+                                                         param.ExpectedRunningService, param.ExpectedDateStarted));
+            aggregate2.RaiseEvent(new ProcessElemStoped(param.ExpectedStreamId, param.ExpectedProcessId, param.ExpectedDateStoped));
+            _repo.Save(aggregate2);
+            // Assert
+            ((IEventSourced<int>)aggregate2).UncommittedEvents.Count().Should().Be(0);
+            _store.ReadEvents(1).Count().Should().Be(4);
+            aggregate2.GetProcessElementById(param.ExpectedProcessId).ShouldBeAsExpected(param);
+        }
+
+        [Test]
         public void Repo_Should_Publish_Event_On_Store()
         {
             // Arrange
             var aggregate = Start_Process(GetArg(), () => _repo.GetNewAggregate());
-            var msgProcessor   = new MessageProcessor(_eventListenerRegister);
-            msgProcessor.RegisterMessageToBeCounted<InputAggregateCreated>();
-            msgProcessor.RegisterMessageToBeCounted<ProcessElementEntityCreated>();
-            msgProcessor.RegisterMessageToBeCounted<ProcessElemStarted>();
+            MessageProcessor msgProcessor = InitializeMessageProcessor();
             // Act
             _repo.Save(aggregate);
             // Assert
             ((IEventSourced<int>)aggregate).UncommittedEvents.Count().Should().Be(0);
             msgProcessor.Count.Should().Be(3);
         }
-
 
         [Test]
         public void Repo_Should_Restitute_Aggregate_At_the_Last_Save_State()
@@ -96,20 +95,6 @@ namespace Domain.Base.EventSourcedAggregateRepository.Test
             var entity = restoreAggregate.FindEntityByCriteria(CriteriaOnRunningservice);
         }
     }
-
-    public class MessageProcessor
-    {
-        readonly IHandlerRegister _register;
-        int _count;
-
-        public int Count { get { return _count; } }
-
-        public MessageProcessor(IHandlerRegister register) => _register = register;
-
-        public void RegisterHandle<T>(Action<T> handle) => _register.RegisterHandler(handle);
-
-        public void RegisterMessageToBeCounted<T>() => _register.RegisterHandler<T>(Increment);
-
-        private void Increment<T>(T passiveEvt) => _count++;
-    }
 }
+
+

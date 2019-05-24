@@ -29,7 +29,7 @@ namespace Domain.Base.Aggregate
         #region Purely from the abstract class
         protected BaseEventHandlerMap<TAggregateId> EventHandlerMap { get; }
 
-        public void RaiseEvent<TEvent>(TEvent evt) where TEvent : DomainEventBase<TAggregateId>
+        public void RaiseEvent<TEvent>(TEvent evt) where TEvent : IDomainEvent<TAggregateId>
         {
             evt.OfAggregate(this);
             ((IEventSourced<TAggregateId>)this).ProcessEvent(evt, _currentVersion + 1);
