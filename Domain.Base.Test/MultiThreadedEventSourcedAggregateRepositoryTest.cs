@@ -81,7 +81,7 @@ namespace Domain.Base.EventSourcedAggregateRepository.Test
         }
 
         [Test]
-        public void Repo_Should_Failed_To_Updated_Aggregate_When_Used_Sequentialy_WithOut_Protection_By_Two_Thread()
+        public void Repo_Should_Successfully_Update_Aggregate_When_Used_Sequentialy_WithOut_Protection_By_Two_Thread()
         {
             /// Arrange
             var param1 = GetArg(1);
