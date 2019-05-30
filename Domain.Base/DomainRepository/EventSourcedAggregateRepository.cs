@@ -14,11 +14,11 @@ namespace Domain.Base.DomainRepository
         where TAggregate : AggregateBase<TAggregateId, TEntityId>, new()
     {
         #region Private Field
-        private const string CommunicationImpossibleWithPersistenceBackend = "Impossible to communicate persistence backend";
-        private readonly IEventStore<TAggregateId> _eventStore;
-        private readonly IEventBus _publisher;
-        private readonly IEmptyAggregateFactory<TAggregate, TAggregateId, TEntityId> _emptyAggregateFactory;
-        private readonly Dictionary<Type, Action<object>> _publishMethods = new Dictionary<Type, Action<object>>(20);
+        protected const string CommunicationImpossibleWithPersistenceBackend = "Impossible to communicate persistence backend";
+        protected readonly IEventStore<TAggregateId> _eventStore;
+        protected readonly IEventBus _publisher;
+        protected readonly IEmptyAggregateFactory<TAggregate, TAggregateId, TEntityId> _emptyAggregateFactory;
+        protected readonly Dictionary<Type, Action<object>> _publishMethods = new Dictionary<Type, Action<object>>(20);
         #endregion
 
         #region ctor
@@ -43,7 +43,7 @@ namespace Domain.Base.DomainRepository
                 foreach (var evt in _eventStore.ReadEvents(id))
                 {
                     //aggregate.RaiseEvent(evt.DomainEvent);
-                    aggregateEventSourcedView.ProcessEvent(evt.DomainEvent, evt.EventNumber);
+                    aggregateEventSourcedView.ProcessEvent(evt.DomainEvent, evt.Version);
                 }
                 aggregateEventSourcedView.ClearUncommittedEvents();
                 return aggregate;
@@ -67,7 +67,7 @@ namespace Domain.Base.DomainRepository
 
                 foreach (var evt in await _eventStore.ReadEventsAsync(id))
                 {
-                    aggregateEventSourcedView.ProcessEvent(evt.DomainEvent, evt.EventNumber);
+                    aggregateEventSourcedView.ProcessEvent(evt.DomainEvent, evt.Version);
                 }
                 return aggregate;
             }
@@ -114,8 +114,9 @@ namespace Domain.Base.DomainRepository
 
                 foreach (var evt in aggregateEventSourcedView.UncommittedEvents)
                 {
-                    await _eventStore.AddEventAsync(evt);
-                    await _publisher.PublishEventAsync((dynamic)evt);
+                    await _eventStore.AddEventAsync(evt).ConfigureAwait(false);
+                    // TODO : create PublishEventAsync method to make this call async
+                    PublishEvent(evt);
                 }
                 aggregateEventSourcedView.ClearUncommittedEvents();
             }
@@ -125,27 +126,27 @@ namespace Domain.Base.DomainRepository
             }
         } 
         #endregion
+        protected void PublishEvent(IDomainEvent<TAggregateId> evt) => GetPublishMethod(evt.GetType(), "PublishEvent")(evt);
 
         #region Private Method
-        private void PublishEvent(IDomainEvent<TAggregateId> evt) => GetPublishMethod(evt.GetType())(evt);
 
-        private Action<object> GetPublishMethod(Type type)
+        private Action<object> GetPublishMethod(Type type, string methodName)
         {
             if (!_publishMethods.ContainsKey(type))
             {
-                var action = GetDynamicPublishEventAction(type);
+                var action = GetDynamicPublishEventAction(type, methodName);
                 _publishMethods[type] = (evt) => action(_publisher, evt);
             }
             return _publishMethods[type];
         }
 
-        private Action<IEventBus, object> GetDynamicPublishEventAction(Type type)
+        private Action<IEventBus, object> GetDynamicPublishEventAction(Type type, string methodName)
         {
             var expParam           = Expression.Parameter(typeof(object));
             var expParamPublisher  = Expression.Parameter(typeof(IEventBus));
-            var method             = typeof(IEventBus).GetMethod("PublishEvent", BindingFlags.Public
-                                                                                 | BindingFlags.Instance
-                                                                                 | BindingFlags.NonPublic);
+            var method             = typeof(IEventBus).GetMethod(methodName, BindingFlags.Public
+                                                                             | BindingFlags.Instance
+                                                                             | BindingFlags.NonPublic);
             var expCall            = Expression.Call(expParamPublisher, method.MakeGenericMethod(new[] { type, typeof(TAggregateId) } ), Expression.Convert(expParam, type));
             var lambdaExp          = ((Expression<Action<IEventBus, object>>)Expression.Lambda(expCall, expParamPublisher, expParam));
             return lambdaExp.Compile();

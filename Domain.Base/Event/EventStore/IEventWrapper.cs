@@ -1,9 +1,12 @@
-﻿namespace Domain.Base.Event.EventStore
+﻿using System;
+
+namespace Domain.Base.Event.EventStore
 {
     public interface IEventWrapper<TAggregateId>
     {
         IDomainEvent<TAggregateId> DomainEvent { get; }
-        long EventNumber { get; }
         string Key { get; }
+        long Version { get; }
+        DateTime InsertDate { get; }
     }
 }

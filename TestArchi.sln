@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToyConsole", "ToyConsole\To
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Mock.Implem", "Domain.Mock.Implem\Domain.Mock.Implem.csproj", "{1D7B0176-0A9C-4E73-BB01-014161AF536B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Base.Mock.Test", "Domain.Base.Mock.Test\Domain.Base.Mock.Test.csproj", "{5AE6D539-13FD-4D90-9F82-20610F150D6A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{1D7B0176-0A9C-4E73-BB01-014161AF536B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D7B0176-0A9C-4E73-BB01-014161AF536B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D7B0176-0A9C-4E73-BB01-014161AF536B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AE6D539-13FD-4D90-9F82-20610F150D6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AE6D539-13FD-4D90-9F82-20610F150D6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AE6D539-13FD-4D90-9F82-20610F150D6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AE6D539-13FD-4D90-9F82-20610F150D6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

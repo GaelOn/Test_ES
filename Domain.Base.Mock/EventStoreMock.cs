@@ -1,19 +1,20 @@
-﻿using Domain.Base.Event;
-using Domain.Base.Event.EventStore;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Domain.Base.Event;
+using Domain.Base.Event.EventStore;
 
 namespace Domain.Base.Mock
 {
     public class EventStoreMock<TStreamId> : IEventStore<TStreamId>
     {
-        private readonly Dictionary<TStreamId, LinkedList<EventWrapper<TStreamId>>> _localStore 
+        private readonly Dictionary<TStreamId, LinkedList<EventWrapper<TStreamId>>> _localStore
             = new Dictionary<TStreamId, LinkedList<EventWrapper<TStreamId>>>(20);
 
         public NextExpectedVersionByStore AddEvent(IDomainEvent<TStreamId> evt)
         {
-            if(!_localStore.ContainsKey(evt.StreamId))
+            if (!_localStore.ContainsKey(evt.StreamId))
             {
                 _localStore[evt.StreamId] = new LinkedList<EventWrapper<TStreamId>>();
             }
@@ -32,7 +33,7 @@ namespace Domain.Base.Mock
         public Task<NextExpectedVersionByStore> AddEventAsync(IDomainEvent<TStreamId> evt) => Task.Factory.StartNew(() => AddEvent(evt));
 
         public NextExpectedVersionByStore GetNextExpectedVersion(TStreamId streamId)
-            => _localStore.ContainsKey(streamId) ? new NextExpectedVersionByStore(_localStore[streamId].Count) 
+            => _localStore.ContainsKey(streamId) ? new NextExpectedVersionByStore(_localStore[streamId].Count)
                                                  : new NextExpectedVersionByStore(0);
 
         public IEnumerable<IEventWrapper<TStreamId>> ReadEvents(TStreamId id)
@@ -48,7 +49,18 @@ namespace Domain.Base.Mock
         public Task<IEnumerable<IEventWrapper<TStreamId>>> ReadEventsFromVersionAsync(TStreamId id, long versionId)
             => Task.Factory.StartNew(() => ReadEventsFromVersion(id, versionId));
 
+        public bool TryAddEventWithUniqueKey(IDomainEvent<TStreamId> evt, Func<IDomainEvent<TStreamId>, bool> CompareEvt)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> TryAddEventWithUniqueKeyAsync(IDomainEvent<TStreamId> evt, Func<IDomainEvent<TStreamId>, bool> CompareEvt)
+        {
+            throw new NotImplementedException();
+        }
+
         private bool CheckEvent(LinkedList<EventWrapper<TStreamId>> evts, long eventVersion)
             => (evts.Count == 0) ? eventVersion == 0 : evts.Last.Value.Version == eventVersion - 1;
     }
 }
+

@@ -53,9 +53,15 @@
     <Compile Include="DomainRepository\EventSourcedAggregateRepository.cs" />
     <Compile Include="Aggregate\IAggregate.cs" />
     <Compile Include="Aggregate\EmptyAggregateFactory\IEmptyAggregateFactory.cs" />
+    <Compile Include="DomainRepository\Transactional\BaseUnitOfWork.cs" />
+    <Compile Include="DomainRepository\Transactional\EventSourcedAggrregateTransactionnalRepository.cs" />
     <Compile Include="DomainRepository\Exception\RepositoryException.cs" />
     <Compile Include="DomainRepository\IDomainRepository.cs" />
     <Compile Include="Aggregate\EntityList.cs" />
+    <Compile Include="Event\EventStore\Exception\OptimisticConcurencyException.cs" />
+    <Compile Include="Event\EventStore\IdProvider\IIdProvider.cs" />
+    <Compile Include="DomainRepository\Transactional\ITransactionnalSave.cs" />
+    <Compile Include="DomainRepository\Transactional\IUnitOfWork.cs" />
     <Compile Include="Event\EvantHandler\BaseEventHandlerMap.cs" />
     <Compile Include="Event\DomainEventBase.cs" />
     <Compile Include="Event\EvantHandler\DomainEventHandler.cs" />
@@ -67,6 +73,8 @@
     <Compile Include="Event\EventStore\IEventStore.cs" />
     <Compile Include="Event\EventStore\IEventWrapper.cs" />
     <Compile Include="Event\EventStore\NextExpectedVersionByStore.cs" />
+    <Compile Include="Event\EventStore\Transactional\EventStoreTransaction.cs" />
+    <Compile Include="Event\EventStore\Transactional\ITransaction.cs" />
     <Compile Include="Event\IDomainEvent.cs" />
     <Compile Include="Event\EvantHandler\IDomainEventHandler.cs" />
     <Compile Include="Event\IEventCommunication\IEventBus.cs" />

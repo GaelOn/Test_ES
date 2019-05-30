@@ -47,6 +47,10 @@ Generated\ Files/
 TestResult.xml
 nunit_random_seed.tmp
 
+#NCRUNCH
+*.ncrunchsolution
+*.ncrunchsolution.user
+
 # Build Results of an ATL Project
 [Dd]ebugPS/
 [Rr]eleasePS/

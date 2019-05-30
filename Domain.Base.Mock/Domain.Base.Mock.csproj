@@ -49,7 +49,9 @@
     <Compile Include="CommunicationQueue\Path.cs" />
     <Compile Include="CommunicationQueue\Publisher.cs" />
     <Compile Include="CommunicationQueue\Route.cs" />
+    <Compile Include="ConcreteStore.cs" />
     <Compile Include="EventBus\MockEventBus.cs" />
+    <Compile Include="EventStoreCrudMock.cs" />
     <Compile Include="EventStoreMock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
