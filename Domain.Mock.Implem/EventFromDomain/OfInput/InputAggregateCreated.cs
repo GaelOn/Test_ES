@@ -6,6 +6,8 @@ namespace Domain.Mock.Implem.EventFromDomain.OfInput
     {
         public InputAggregateCreated(int streamId) : base(streamId) { }
 
+        public InputAggregateCreated(int streamId, int version) : base(streamId, version) { }
+
         public override void OfAggregate(IEventSourced<int> aggregate) => EventVersion = aggregate.CurrentVersion;
     }
 }

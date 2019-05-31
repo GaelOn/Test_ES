@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateTest\AggregateBaseTest.cs" />
+    <Compile Include="AggregateTest\EntityListTest.cs" />
     <Compile Include="RepositoryTest\BaseEventSourcedAggregateRepositoryTest.cs" />
     <Compile Include="EventTest\DomainEventTest.cs" />
     <Compile Include="RepositoryTest\EventSourcedAggregateRepositoryTest.cs" />
