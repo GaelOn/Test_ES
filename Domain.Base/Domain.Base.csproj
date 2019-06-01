@@ -59,6 +59,7 @@
     <Compile Include="DomainRepository\IDomainRepository.cs" />
     <Compile Include="Aggregate\EntityList.cs" />
     <Compile Include="Event\EventStore\Exception\OptimisticConcurencyException.cs" />
+    <Compile Include="Event\EventStore\Exception\TransactionCannotBeginException.cs" />
     <Compile Include="Event\EventStore\IdProvider\IIdProvider.cs" />
     <Compile Include="DomainRepository\Transactional\ITransactionnalSave.cs" />
     <Compile Include="DomainRepository\Transactional\IUnitOfWork.cs" />

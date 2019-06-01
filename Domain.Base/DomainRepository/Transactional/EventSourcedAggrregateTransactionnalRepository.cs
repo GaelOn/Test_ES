@@ -33,6 +33,7 @@ namespace Domain.Base.DomainRepository.Transactional
             var tran          = new EventStoreTransaction<TAggregate, TAggregateId>(_idProvider, uow);
             var idEnumerator  = (tran as IEnumerable<long>).GetEnumerator();
             var evtEnumerator = castedElem.UncommittedEvents.GetEnumerator();
+            evtEnumerator.MoveNext();
             tran.BeginTransaction(castedElem.StreamId, castedElem.UncommittedEvents.ToList());
             try
             {

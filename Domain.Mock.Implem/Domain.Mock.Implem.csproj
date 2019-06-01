@@ -45,6 +45,7 @@
     <Compile Include="EventFromDomain\EntityOfInput\ProcessElemStarted.cs" />
     <Compile Include="EventFromDomain\EntityOfInput\ProcessElemStoped.cs" />
     <Compile Include="EventFromDomain\OfInput\ProcessElementEntityCreated.cs" />
+    <Compile Include="EventFromDomain\ToysEvent\TestEvent.cs" />
     <Compile Include="InputAggregate.cs" />
     <Compile Include="EventFromDomain\OfInput\InputAggregateCreated.cs" />
     <Compile Include="InputAggregateRepo.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="FirstSubProcess.cs" />
     <Compile Include="ProcessElementState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitOfWork\BasicUnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Domain.Base\Domain.Base.csproj">
