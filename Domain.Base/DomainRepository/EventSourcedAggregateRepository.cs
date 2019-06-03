@@ -14,14 +14,17 @@ namespace Domain.Base.DomainRepository
         where TAggregate : AggregateBase<TAggregateId, TEntityId>, new()
     {
         #region Private Field
+
         protected const string CommunicationImpossibleWithPersistenceBackend = "Impossible to communicate persistence backend";
         protected readonly IEventStore<TAggregateId> _eventStore;
         protected readonly IEventBus _publisher;
         protected readonly IEmptyAggregateFactory<TAggregate, TAggregateId, TEntityId> _emptyAggregateFactory;
         protected readonly Dictionary<Type, Action<object>> _publishMethods = new Dictionary<Type, Action<object>>(20);
-        #endregion
+
+        #endregion Private Field
 
         #region ctor
+
         public EventSourcedAggregateRepository(IEventStore<TAggregateId> eventStore,
                                               IEventBus publisher,
                                               IEmptyAggregateFactory<TAggregate, TAggregateId, TEntityId> emptyAggregateFactory)
@@ -30,9 +33,11 @@ namespace Domain.Base.DomainRepository
             _publisher = publisher;
             _emptyAggregateFactory = emptyAggregateFactory;
         }
-        #endregion
+
+        #endregion ctor
 
         #region IDomainRepository<TAggregate, TAggregateId> implementation
+
         public TAggregate GetById(TAggregateId id)
         {
             try
@@ -105,7 +110,6 @@ namespace Domain.Base.DomainRepository
             }
         }
 
-
         public async Task SaveAsync(TAggregate aggregate)
         {
             try
@@ -124,8 +128,10 @@ namespace Domain.Base.DomainRepository
             {
                 throw new RepositoryException(CommunicationImpossibleWithPersistenceBackend, ex);
             }
-        } 
-        #endregion
+        }
+
+        #endregion IDomainRepository<TAggregate, TAggregateId> implementation
+
         protected void PublishEvent(IDomainEvent<TAggregateId> evt) => GetPublishMethod(evt.GetType(), "PublishEvent")(evt);
 
         #region Private Method
@@ -142,27 +148,28 @@ namespace Domain.Base.DomainRepository
 
         private Action<IEventBus, object> GetDynamicPublishEventAction(Type type, string methodName)
         {
-            var expParam           = Expression.Parameter(typeof(object));
-            var expParamPublisher  = Expression.Parameter(typeof(IEventBus));
-            var method             = typeof(IEventBus).GetMethod(methodName, BindingFlags.Public
+            var expParam = Expression.Parameter(typeof(object));
+            var expParamPublisher = Expression.Parameter(typeof(IEventBus));
+            var method = typeof(IEventBus).GetMethod(methodName, BindingFlags.Public
                                                                              | BindingFlags.Instance
                                                                              | BindingFlags.NonPublic);
-            var expCall            = Expression.Call(expParamPublisher, method.MakeGenericMethod(new[] { type, typeof(TAggregateId) } ), Expression.Convert(expParam, type));
-            var lambdaExp          = ((Expression<Action<IEventBus, object>>)Expression.Lambda(expCall, expParamPublisher, expParam));
+            var expCall = Expression.Call(expParamPublisher, method.MakeGenericMethod(new[] { type, typeof(TAggregateId) }), Expression.Convert(expParam, type));
+            var lambdaExp = ((Expression<Action<IEventBus, object>>)Expression.Lambda(expCall, expParamPublisher, expParam));
             return lambdaExp.Compile();
         }
 
         #region Guard methods
+
         private void VersionGuard(NextExpectedVersionByStore expectedVersion, IDomainEvent<TAggregateId> evt)
         {
             if (expectedVersion.ExpectedVersion != evt.EventVersion)
             {
                 throw new StoredVersionDontMatchException($"Event of type {evt.GetType()} should have a version number equal to {expectedVersion} but found {evt.EventVersion}.");
             }
-
         }
-        #endregion
 
-        #endregion
+        #endregion Guard methods
+
+        #endregion Private Method
     }
 }

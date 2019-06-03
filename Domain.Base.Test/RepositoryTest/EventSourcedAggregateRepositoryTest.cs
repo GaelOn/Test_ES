@@ -8,13 +8,13 @@ using static Domain.Base.Test.TestHelper.Scenario;
 using NUnit.Framework;
 using FluentAssertions;
 using Domain.Base.Test.TestHelper;
+using System.Threading.Tasks;
 
 namespace Domain.Base.Test.RepositoryTest
 {
     [TestFixture]
     public partial class EventSourcedAggregateRepositoryTest : BaseEventSourcedAggregateRepositoryTest
     {
-
         [Test]
         public void Repo_Can_Create_An_Empty_Agregate()
         {
@@ -25,12 +25,62 @@ namespace Domain.Base.Test.RepositoryTest
         }
 
         [Test]
+        public void Repo_Can_Not_Create_An_Empty_Agregate_Using_GetById()
+        {
+            // Arrange, Act
+            var aggregate = _repo.GetById(10);
+            // Assert
+            aggregate.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Repo_Can_Not_Create_An_Empty_Agregate_Using_GetByIdAsync()
+        {
+            // Arrange, Act
+            AggregateBase<int, int> aggregate = _repo.GetById(10);
+            aggregate = await _repo.GetByIdAsync(10).ConfigureAwait(false);
+            // Assert
+            aggregate.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Repo_Can_Retrieve_Agregate_Using_GetByIdAsync()
+        {
+            // Arrange
+            var param = GetArg(1);
+            var aggregate = _repo.GetNewAggregate();
+            var processElemCreation = new FirstSubProcess(param.ProcessName, param.ExpectedProcessId, param.ExpectedDateCreated);
+            aggregate.RaiseEvent(new InputAggregateCreated(param.ExpectedStreamId));
+            aggregate.RaiseEvent(new ProcessElementEntityCreated(param.ExpectedStreamId, processElemCreation));
+            aggregate.RaiseEvent(new ProcessElemStarted(param.ExpectedStreamId, param.ExpectedProcessId,
+                                                        param.ExpectedRunningService, param.ExpectedDateStarted));
+            aggregate.RaiseEvent(new ProcessElemStoped(param.ExpectedStreamId, param.ExpectedProcessId, param.ExpectedDateStoped));
+            _repo.Save(aggregate);
+            // Act
+            var aggregate2 = await _repo.GetByIdAsync(param.ExpectedStreamId);
+            // Assert
+            aggregate2.GetProcessElementById(param.ExpectedProcessId).ShouldBeAsExpected(param);
+        }
+
+        [Test]
         public void Repo_Should_Save_Event_On_Store()
         {
             // Arrange
             var aggregate = Start_Process(GetArg(), () => _repo.GetNewAggregate());
             // Act
             _repo.Save(aggregate);
+            // Assert
+            ((IEventSourced<int>)aggregate).UncommittedEvents.Count().Should().Be(0);
+            _store.ReadEvents(1).Count().Should().Be(3);
+        }
+
+        [Test]
+        public async Task Repo_Should_Save_Asynchronously_Event_On_Store()
+        {
+            // Arrange
+            var aggregate = Start_Process(GetArg(), () => _repo.GetNewAggregate());
+            // Act
+            await _repo.SaveAsync(aggregate);
             // Assert
             ((IEventSourced<int>)aggregate).UncommittedEvents.Count().Should().Be(0);
             _store.ReadEvents(1).Count().Should().Be(3);
@@ -95,5 +145,3 @@ namespace Domain.Base.Test.RepositoryTest
         }
     }
 }
-
-

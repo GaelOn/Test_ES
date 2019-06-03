@@ -37,7 +37,7 @@ namespace Domain.Base.Mock
                                                  : new NextExpectedVersionByStore(0);
 
         public IEnumerable<IEventWrapper<TStreamId>> ReadEvents(TStreamId id)
-            => _localStore.ContainsKey(id) ? _localStore[id].AsEnumerable<IEventWrapper<TStreamId>>() : null;
+            => _localStore.ContainsKey(id) ? _localStore[id].AsEnumerable<IEventWrapper<TStreamId>>() : throw new AggregateNotFoundEventStoreException($"StreamId {id} can not be found into eventStore.");
 
         public Task<IEnumerable<IEventWrapper<TStreamId>>> ReadEventsAsync(TStreamId id) => Task.Factory.StartNew(() => ReadEvents(id));
 
@@ -63,4 +63,3 @@ namespace Domain.Base.Mock
             => (evts.Count == 0) ? eventVersion == 0 : evts.Last.Value.Version == eventVersion - 1;
     }
 }
-
