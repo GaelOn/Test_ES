@@ -10,22 +10,27 @@ namespace Domain.Base.Event.EventStore.Transactional
     public class EventStoreTransaction<TAggregate, TAggregateId> : ITransaction<TAggregateId>, IDisposable
     {
         #region Private fields
+
         private readonly IIdProvider<TAggregateId> _idProvider;
         private readonly IUnitOfWork<TAggregate, TAggregateId> _uow;
         private long[] _idRange;
         private readonly Guid _transactionId;
-        #endregion
+
+        #endregion Private fields
 
         #region ctor
+
         public EventStoreTransaction(IIdProvider<TAggregateId> idProvider, IUnitOfWork<TAggregate, TAggregateId> uow = null)
         {
             _idProvider = idProvider;
             _uow = uow;
             _transactionId = Guid.NewGuid();
         }
-        #endregion
+
+        #endregion ctor
 
         #region Implementation of ITransaction<TStreamId>
+
         Guid ITransaction<TAggregateId>.TransactionId => _transactionId;
 
         public void BeginTransaction(TAggregateId streamId, ICollection<IDomainEvent<TAggregateId>> evts)
@@ -37,8 +42,9 @@ namespace Domain.Base.Event.EventStore.Transactional
             _idRange = _idProvider.PrepareIdRange(streamId, evts.Count);
         }
 
-        public virtual void Commit()   => _uow?.Commit();
-        public virtual void Rollback() => _uow?.Rollback(); 
+        public virtual void Commit() => _uow?.Commit();
+
+        public virtual void Rollback() => _uow?.Rollback();
 
         public void ValidateEvent(long expectedVersion, IDomainEvent<TAggregateId> evt)
         {
@@ -49,9 +55,11 @@ namespace Domain.Base.Event.EventStore.Transactional
         }
 
         public void Dispose() => _uow.Dispose();
-        #endregion
+
+        #endregion Implementation of ITransaction<TStreamId>
 
         #region IEnumerable<long>
+
         public IEnumerator<long> GetEnumerator() => new IdRangeEnumerator(_idRange);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -65,7 +73,8 @@ namespace Domain.Base.Event.EventStore.Transactional
             public IdRangeEnumerator(long[] range)
             {
                 _range = range;
-                _max = _range.Length;
+                // minuns one because we start at 0
+                _max = _range.Length - 1;
                 _idx = -1;
             }
 
@@ -86,7 +95,8 @@ namespace Domain.Base.Event.EventStore.Transactional
             }
 
             public void Reset() => _idx = 0;
-        } 
-        #endregion
+        }
+
+        #endregion IEnumerable<long>
     }
 }
