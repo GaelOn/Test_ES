@@ -14,24 +14,30 @@ namespace Domain.Base.DomainRepository.Transactional
             where TAggregate : AggregateBase<TAggregateId, TEntityId>, new()
     {
         #region Private Field
-        private readonly IIdProvider<TAggregateId> _idProvider; 
-        #endregion
+
+        private readonly IIdProvider<TAggregateId> _idProvider;
+
+        #endregion Private Field
 
         #region ctor
+
         public EventSourcedAggrregateTransactionnalRepository(IEventStore<TAggregateId> eventStore,
                                                               IEventBus publisher,
                                                               IEmptyAggregateFactory<TAggregate, TAggregateId, TEntityId> emptyAggregateFactory,
                                                               IIdProvider<TAggregateId> idProvider)
             : base(eventStore, publisher, emptyAggregateFactory) => _idProvider = idProvider;
-        #endregion
+
+        #endregion ctor
 
         #region ITransactionnalSave<TAggregate, TAggregateId>
+
         public TAggregate Save(TAggregate elem, IUnitOfWork<TAggregate, TAggregateId> uow)
         {
-            var newAggregate  = elem;
-            var castedElem    = ((IEventSourced<TAggregateId>)newAggregate);
-            var tran          = new EventStoreTransaction<TAggregate, TAggregateId>(_idProvider, uow);
-            var idEnumerator  = (tran as IEnumerable<long>).GetEnumerator();
+            var newAggregate = elem;
+            var castedElem = ((IEventSourced<TAggregateId>)newAggregate);
+            uow.OnCommit += castedElem.ClearUncommittedEvents;
+            var tran = new EventStoreTransaction<TAggregate, TAggregateId>(_idProvider, uow);
+            var idEnumerator = (tran as IEnumerable<long>).GetEnumerator();
             var evtEnumerator = castedElem.UncommittedEvents.GetEnumerator();
             evtEnumerator.MoveNext();
             tran.BeginTransaction(castedElem.StreamId, castedElem.UncommittedEvents.ToList());
@@ -44,11 +50,10 @@ namespace Domain.Base.DomainRepository.Transactional
                     _eventStore.AddEvent(evt);
                     PublishEvent(evt);
                 } while (idEnumerator.MoveNext() && evtEnumerator.MoveNext());
-                castedElem.ClearUncommittedEvents();
                 tran.Commit();
             }
             //TODO : find what to do with the exception.
-            catch 
+            catch
             {
                 tran.Rollback();
                 newAggregate = GetById(newAggregate.AggregateId);
@@ -62,6 +67,7 @@ namespace Domain.Base.DomainRepository.Transactional
             task.Start();
             return task;
         }
-        #endregion
+
+        #endregion ITransactionnalSave<TAggregate, TAggregateId>
     }
 }
