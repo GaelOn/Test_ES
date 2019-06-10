@@ -49,6 +49,26 @@ namespace Domain.Base.Test.RepositoryTest.Transactionnal
         }
 
         [Test]
+        public void EventStoreTrasaction_Cannot_Provide_More_Id_Than_Asked()
+        {
+            // Arrange
+            var expectedStreamId = 1;
+            var expectedNbEvent = 3;
+            var evts = CreateEventFromVersion(expectedStreamId, 2, expectedNbEvent);
+            // Act
+            _tran.BeginTransaction(expectedStreamId, evts);
+            var idEnumerator = _tran.GetEnumerator();
+            var evtEnumerator = evts.GetEnumerator();
+            for (int it = 0; it < expectedNbEvent; it++)
+            {
+                idEnumerator.MoveNext();
+                evtEnumerator.MoveNext();
+            }
+            // Assert
+            (idEnumerator.MoveNext()).Should().BeFalse();
+        }
+
+        [Test]
         public void EventStoreTrasaction_Should_Commit_When_OptimisticConcurency_Succeeds()
         {
             // Arrange
