@@ -8,15 +8,6 @@ namespace Domain.Base.Mock
     {
         private readonly Dictionary<TId, long> _caseMap = new Dictionary<TId, long>(20);
 
-        public void CommitId(TId key, long id)
-        {
-            if (_caseMap[key] == id)
-            {
-                throw new OptimisticConcurencyException($"Test failed, current version number equal to {id} should have been memoized but found {_caseMap[key]}.");
-            }
-            ++_caseMap[key];
-        }
-
         public long PrepareId(TId key) => _caseMap[key];
 
         public long[] PrepareIdRange(TId key, int rangeSize)
@@ -24,7 +15,7 @@ namespace Domain.Base.Mock
             var toBeReturned = new long[rangeSize];
             for (int i = 0; i < rangeSize; i++)
             {
-                toBeReturned[i] = _caseMap[key] + i;
+                toBeReturned[i] = _caseMap[key] + i; 
             }
             return toBeReturned;
         }

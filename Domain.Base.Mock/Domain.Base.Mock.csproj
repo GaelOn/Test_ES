@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicMockEventStore.cs" />
     <Compile Include="BasicMockIdProvider.cs" />
     <Compile Include="CommunicationQueue\Exchange.cs" />
     <Compile Include="CommunicationQueue\IHandlerRegister.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="CommunicationQueue\Route.cs" />
     <Compile Include="ConcreteStore.cs" />
     <Compile Include="EventBus\MockEventBus.cs" />
+    <Compile Include="EventIdProvider.cs" />
     <Compile Include="EventStoreCrudMock.cs" />
     <Compile Include="EventStoreMock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

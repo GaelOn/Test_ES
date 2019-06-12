@@ -60,6 +60,7 @@
     <Compile Include="EventTest\DomainEventTest.cs" />
     <Compile Include="RepositoryTest\EventSourcedAggregateRepositoryTest.cs" />
     <Compile Include="EventTest\EventWrapperTest.cs" />
+    <Compile Include="RepositoryTest\Transactionnal\EventIdProviderTest.cs" />
     <Compile Include="RepositoryTest\Transactionnal\EventStoreTransactionTest.cs" />
     <Compile Include="TestHelper\IProcessElementExtension.cs" />
     <Compile Include="TestHelper\MessageProcessor.cs" />

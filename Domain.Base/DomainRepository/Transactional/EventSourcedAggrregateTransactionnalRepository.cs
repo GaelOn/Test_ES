@@ -9,7 +9,7 @@ using Domain.Base.Event.EventStore.Transactional;
 
 namespace Domain.Base.DomainRepository.Transactional
 {
-    public sealed class EventSourcedAggrregateTransactionnalRepository<TAggregate, TAggregateId, TEntityId> : EventSourcedAggregateRepository<TAggregate, TAggregateId, TEntityId>,
+    public class EventSourcedAggrregateTransactionnalRepository<TAggregate, TAggregateId, TEntityId> : EventSourcedAggregateRepository<TAggregate, TAggregateId, TEntityId>,
             ITransactionnalSave<TAggregate, TAggregateId>
             where TAggregate : AggregateBase<TAggregateId, TEntityId>, new()
     {

@@ -13,15 +13,17 @@ namespace Domain.Base.Mock
 
         static EventStoreCrudMock() => _localStore = new ConcreteStore<TStreamId, EventWrapper<TStreamId>>();
 
-        public EventStoreCrudMock() { }
+        public EventStoreCrudMock()
+        {
+        }
 
         public NextExpectedVersionByStore AddEvent(IDomainEvent<TStreamId> evt)
         {
             var wrapper = new EventWrapper<TStreamId>(evt);
             _localStore.Insert(evt.StreamId, wrapper);
             var evts = _localStore.Select(evt.StreamId, (wrap => wrap.DomainEvent.EventVersion == evt.EventVersion));
-            if (evts.Length > 1 && evts.FirstOrDefault(wrapevt => wrapevt.Version    == evt.EventVersion && 
-                                                                  wrapevt.InsertDate == evts.Min(wrappedEvt => wrappedEvt.InsertDate))?.DomainEvent != evt )
+            if (evts.Length > 1 && evts.FirstOrDefault(wrapevt => wrapevt.Version == evt.EventVersion &&
+                                                                  wrapevt.InsertDate == evts.Min(wrappedEvt => wrappedEvt.InsertDate))?.DomainEvent != evt)
             {
                 _localStore.Delete(wrapper, wrap => wrap.StreamId, wrap => wrap.DomainEvent.EventId == evt.EventId);
                 var nev = GetNextExpectedVersionAsLong(evt.StreamId);
@@ -32,7 +34,8 @@ namespace Domain.Base.Mock
 
         public Task<NextExpectedVersionByStore> AddEventAsync(IDomainEvent<TStreamId> evt) => Task.Factory.StartNew(() => AddEvent(evt));
 
-        public NextExpectedVersionByStore GetNextExpectedVersion(TStreamId streamId) =>new NextExpectedVersionByStore(GetNextExpectedVersionAsLong(streamId));
+        public NextExpectedVersionByStore GetNextExpectedVersion(TStreamId streamId) => new NextExpectedVersionByStore(GetNextExpectedVersionAsLong(streamId));
+
         private long GetNextExpectedVersionAsLong(TStreamId streamId) => ReadEvents(streamId)?.Max(wrap => wrap.Version) + 1 ?? 0;
 
         public IEnumerable<IEventWrapper<TStreamId>> ReadEvents(TStreamId streamId)
@@ -52,7 +55,7 @@ namespace Domain.Base.Mock
             var wrapper = new EventWrapper<TStreamId>(evt);
             _localStore.Insert(evt.StreamId, wrapper);
             var evts = _localStore.Select(evt.StreamId, (wrap => wrap.DomainEvent.EventVersion == evt.EventVersion));
-            if (evts.Length > 1 && evts.FirstOrDefault(wrapevt => compareEvt(wrapevt.DomainEvent) && 
+            if (evts.Length > 1 && evts.FirstOrDefault(wrapevt => compareEvt(wrapevt.DomainEvent) &&
                                                                   wrapevt.InsertDate == evts.Min(wrappedEvt => wrappedEvt.InsertDate))?.DomainEvent != evt)
             {
                 // rollback the insertion because we found a previously inserted event
