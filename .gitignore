@@ -50,6 +50,7 @@ nunit_random_seed.tmp
 #NCRUNCH
 *.ncrunchsolution
 *.ncrunchsolution.user
+*.ncrunchproject
 
 # Build Results of an ATL Project
 [Dd]ebugPS/

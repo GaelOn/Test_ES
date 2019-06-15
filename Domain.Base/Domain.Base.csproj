@@ -53,10 +53,10 @@
     <Compile Include="DomainRepository\EventSourcedAggregateRepository.cs" />
     <Compile Include="Aggregate\IAggregate.cs" />
     <Compile Include="Aggregate\EmptyAggregateFactory\IEmptyAggregateFactory.cs" />
+    <Compile Include="DomainRepository\IDomainRepository.cs" />
     <Compile Include="DomainRepository\Transactional\BaseUnitOfWork.cs" />
     <Compile Include="DomainRepository\Transactional\EventSourcedAggrregateTransactionnalRepository.cs" />
     <Compile Include="DomainRepository\Exception\RepositoryException.cs" />
-    <Compile Include="DomainRepository\IDomainRepository.cs" />
     <Compile Include="Aggregate\EntityList.cs" />
     <Compile Include="Event\EventStore\Exception\OptimisticConcurencyException.cs" />
     <Compile Include="Event\EventStore\Exception\TransactionCannotBeginException.cs" />

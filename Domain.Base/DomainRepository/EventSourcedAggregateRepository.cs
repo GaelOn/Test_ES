@@ -36,7 +36,7 @@ namespace Domain.Base.DomainRepository
 
         #endregion ctor
 
-        #region IDomainRepository<TAggregate, TAggregateId> implementation 
+        #region IDomainRepository<TAggregate, TAggregateId> implementation
 
         public TAggregate GetById(TAggregateId id)
         {

@@ -37,10 +37,11 @@ namespace Domain.Base.DomainRepository.Transactional
             var castedElem = ((IEventSourced<TAggregateId>)newAggregate);
             uow.OnCommit += castedElem.ClearUncommittedEvents;
             var tran = new EventStoreTransaction<TAggregate, TAggregateId>(_idProvider, uow);
+            tran.BeginTransaction(castedElem.StreamId, castedElem.UncommittedEvents.ToList());
             var idEnumerator = (tran as IEnumerable<long>).GetEnumerator();
             var evtEnumerator = castedElem.UncommittedEvents.GetEnumerator();
+            idEnumerator.MoveNext();
             evtEnumerator.MoveNext();
-            tran.BeginTransaction(castedElem.StreamId, castedElem.UncommittedEvents.ToList());
             try
             {
                 do
