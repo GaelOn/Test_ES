@@ -1,8 +1,8 @@
 ﻿using System;
 using Domain.Base.Event;
 using Domain.Base.Aggregate;
-using Domain.Base.Event.EvantHandler;
 using Domain.Mock.Implem.EventFromDomain.EntityOfInput;
+using Domain.Base.Event.EventHandler;
 
 namespace Domain.Mock.Implem
 {

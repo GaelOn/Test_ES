@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using Domain.Base.Event;
-using Domain.Base.Event.EvantHandler;
+using Domain.Base.Event.EventHandler;
 
 namespace Domain.Base.Aggregate
 {

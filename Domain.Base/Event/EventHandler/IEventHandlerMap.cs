@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Domain.Base.Event.EvantHandler
+namespace Domain.Base.Event.EventHandler
 {
     public interface IEventHandlerMap<TId>
     {

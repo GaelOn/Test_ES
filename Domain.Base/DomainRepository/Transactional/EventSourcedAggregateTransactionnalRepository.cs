@@ -9,7 +9,7 @@ using Domain.Base.Event.EventStore.Transactional;
 
 namespace Domain.Base.DomainRepository.Transactional
 {
-    public class EventSourcedAggrregateTransactionnalRepository<TAggregate, TAggregateId, TEntityId> : EventSourcedAggregateRepository<TAggregate, TAggregateId, TEntityId>,
+    public class EventSourcedAggregateTransactionnalRepository<TAggregate, TAggregateId, TEntityId> : EventSourcedAggregateRepository<TAggregate, TAggregateId, TEntityId>,
             ITransactionnalSave<TAggregate, TAggregateId>
             where TAggregate : AggregateBase<TAggregateId, TEntityId>, new()
     {
@@ -21,7 +21,7 @@ namespace Domain.Base.DomainRepository.Transactional
 
         #region ctor
 
-        public EventSourcedAggrregateTransactionnalRepository(IEventStore<TAggregateId> eventStore,
+        public EventSourcedAggregateTransactionnalRepository(IEventStore<TAggregateId> eventStore,
                                                               IEventBus publisher,
                                                               IEmptyAggregateFactory<TAggregate, TAggregateId, TEntityId> emptyAggregateFactory,
                                                               IIdProvider<TAggregateId> idProvider)

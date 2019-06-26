@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Domain.Base.Event.EvantHandler
+namespace Domain.Base.Event.EventHandler
 {
     public abstract class BaseEventHandlerMap<TAggregateId> : IEventHandlerMap<TAggregateId>
     {
@@ -9,10 +9,10 @@ namespace Domain.Base.Event.EvantHandler
 
         private readonly Dictionary<Type, IDomainEventHandler<TAggregateId>> _eventHandlerMap;
 
-        protected BaseEventHandlerMap(int mapSize = DefaultMapSize) 
+        protected BaseEventHandlerMap(int mapSize = DefaultMapSize)
             => _eventHandlerMap = new Dictionary<Type, IDomainEventHandler<TAggregateId>>(mapSize);
 
-        public IDomainEventHandler<TAggregateId> GetHandlers(Type eventTypeToHandle) 
+        public IDomainEventHandler<TAggregateId> GetHandlers(Type eventTypeToHandle)
             => _eventHandlerMap.ContainsKey(eventTypeToHandle) ? _eventHandlerMap[eventTypeToHandle] : null;
 
         public void RegisterHandle<T>(IDomainEventHandler<T, TAggregateId> handler) where T : class, IDomainEvent<TAggregateId>
