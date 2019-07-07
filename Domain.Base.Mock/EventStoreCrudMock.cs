@@ -1,21 +1,17 @@
-﻿using Domain.Base.Event;
-using Domain.Base.Event.EventStore;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Domain.Base.Event;
+using Domain.Base.Event.EventStore;
 
 namespace Domain.Base.Mock
 {
     public class EventStoreCrudMock<TStreamId> : IEventStore<TStreamId>
     {
-        private static ConcreteStore<TStreamId, EventWrapper<TStreamId>> _localStore;
+        private ConcreteStore<TStreamId, EventWrapper<TStreamId>> _localStore;
 
-        static EventStoreCrudMock() => _localStore = new ConcreteStore<TStreamId, EventWrapper<TStreamId>>();
-
-        public EventStoreCrudMock()
-        {
-        }
+        public EventStoreCrudMock() => _localStore = new ConcreteStore<TStreamId, EventWrapper<TStreamId>>();
 
         public NextExpectedVersionByStore AddEvent(IDomainEvent<TStreamId> evt)
         {
@@ -71,6 +67,6 @@ namespace Domain.Base.Mock
         private bool CheckEvent(LinkedList<EventWrapper<TStreamId>> evts, long eventVersion)
             => (evts.Count == 0) ? eventVersion == 0 : evts.Last.Value.Version == eventVersion - 1;
 
-        public void Reset() => EventStoreCrudMock<TStreamId>._localStore = new ConcreteStore<TStreamId, EventWrapper<TStreamId>>();
+        public void Reset() => _localStore = new ConcreteStore<TStreamId, EventWrapper<TStreamId>>();
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Domain.Base.Event.EventStore;
 using Domain.Base.Event.EventStore.IdProvider;
 
 namespace Domain.Base.Mock
