@@ -22,16 +22,16 @@ namespace Domain.Base.Test.TestHelper
                                                         paramScenarioTest.ExpectedDateStarted));
             return aggregate;
         }
-        public static InputAggregate Should_Throw_Due_To_Bad_StreamId(ParamScenarioTest paramScenarioTest, Func<InputAggregate> aggregateFactory)
+
+        public static Action Should_Throw_Due_To_Bad_StreamId(ParamScenarioTest paramScenarioTest, Func<InputAggregate> aggregateFactory)
         {
             var aggregate = aggregateFactory();
             var processElemCreation = new FirstSubProcess(paramScenarioTest.ProcessName,
                                                          paramScenarioTest.ExpectedProcessId,
                                                          paramScenarioTest.ExpectedDateCreated);
             aggregate.RaiseEvent(new InputAggregateCreated(paramScenarioTest.ExpectedStreamId + 1));
-            //aggregate.RaiseEvent(new ProcessElementEntityCreated(paramScenarioTest.ExpectedStreamId,
-            //                                                     processElemCreation));
-            return aggregate;
+            Action shouldThrow = () => aggregate.RaiseEvent(new ProcessElementEntityCreated(paramScenarioTest.ExpectedStreamId, processElemCreation));
+            return shouldThrow;
         }
 
         public static ParamScenarioTest GetArg(int argNumber = 0)
@@ -40,10 +40,13 @@ namespace Domain.Base.Test.TestHelper
             {
                 case 0:
                     return new ParamScenarioTest("Test", 1, 10, "TestService", DateTime.Now, DateTime.Now.AddMinutes(1), DateTime.Now.AddMinutes(5), ProcessElementState.Ended);
+
                 case 1:
                     return new ParamScenarioTest("Test1", 1, 10, "TestService", DateTime.Now, DateTime.Now.AddMinutes(1), DateTime.Now.AddMinutes(5), ProcessElementState.Ended);
+
                 case 2:
                     return new ParamScenarioTest("Test2", 1, 11, "TestService", DateTime.Now.AddSeconds(30), DateTime.Now.AddMinutes(2), DateTime.Now.AddMinutes(6), ProcessElementState.Ended);
+
                 default:
                     return null;
             }

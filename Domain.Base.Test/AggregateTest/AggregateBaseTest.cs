@@ -37,7 +37,6 @@ namespace Domain.Base.Test.AggregateTest
             ((IEventSourced<int>)aggregate).CurrentVersion.Should().Be(expectedNextCurrentVersion);
         }
 
-
         [Test]
         public void Aggregate_Should_Throw_Exception_On_Bad_StreamId()
         {
@@ -67,6 +66,16 @@ namespace Domain.Base.Test.AggregateTest
             /// Assert
             aggregate.AggregateId.Should().Be(expectedStreamId);
             ((IEventSourced<int>)aggregate).UncommittedEvents.Count().Should().Be(expectedNbEvent);
+        }
+
+        [Test]
+        public void Should_Throw_Due_To_Bad_StreamId()
+        {
+            /// Arrange
+            var param = GetArg(0);
+            Action shouldThrow = Scenario.Should_Throw_Due_To_Bad_StreamId(param, () => _repo.GetNewAggregate());
+            /// Assert
+            shouldThrow.Should().Throw<AggregateIdNotMatchException>();
         }
 
         [Test]
